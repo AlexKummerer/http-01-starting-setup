@@ -4,27 +4,52 @@ const form = document.querySelector("#new-post form");
 const fetchButton = document.querySelector("#available-posts button");
 const postList = document.querySelector("ul");
 
-function sendHttpRequest(method, url) {
+function sendHttpRequest(method, url, data) {
   const promise = new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open(method, url);
-    xhr.responseType = "json";
+    //     const xhr = new XMLHttpRequest();
+    //     xhr.open(method, url);
+    //     xhr.responseType = "json";
 
-    xhr.onload = function () {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve(xhr.response);
-      } else {
-        console.log("Error:", xhr.status);
-      }
-    };
+    //     xhr.onload = function () {
+    //       if (xhr.status >= 200 && xhr.status < 300) {
+    //         resolve(xhr.response);
+    //       } else {
+    //         console.log("Error:", xhr.status);
+    //       }
+    //     };
 
-    xhr.send();
+    //     xhr.send(Json.stringify(data));
 
-    xhr.onerror = function () {
-      console.log(xhr.status);
-      console.log(xhr.responseType);
-      reject(new Error("Something went wrong!"));
-    };
+    //     xhr.onerror = function () {
+    //       console.log(xhr.status);
+    //       console.log(xhr.responseType);
+    //       reject(new Error("Something went wrong!"));
+    //     };
+
+    fetch(url, {
+      method: method,
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (response.status >= 200 && response.status < 300) {
+          return response.json();
+        } else {
+          response.json().then((errData) => {
+            console.log(errData);
+            throw new Error("Something went wrong - server-side.");
+          });
+        }
+      })
+      .then((data) => {
+        resolve(data);
+      })
+      .catch((error) => {
+        console.log(error);
+        reject(error);
+      });
   });
 
   return promise;
